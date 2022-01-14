@@ -19,6 +19,7 @@ package rpc
 import (
 	"context"
 	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
 	"errors"
 	"fmt"
 	"net/url"
@@ -30,6 +31,7 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 )
 
+var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 var (
 	ErrClientQuit                = errors.New("client is closed")
 	ErrNoResult                  = errors.New("no result in JSON-RPC response")
@@ -333,7 +335,7 @@ func (c *Client) CallContext(ctx context.Context, result interface{}, method str
 	case len(resp.Result) == 0:
 		return ErrNoResult
 	default:
-		return json.Unmarshal(resp.Result, &result)
+		return json2.Unmarshal(resp.Result, &result)
 	}
 }
 
@@ -403,7 +405,7 @@ func (c *Client) BatchCallContext(ctx context.Context, b []BatchElem) error {
 			elem.Error = ErrNoResult
 			continue
 		}
-		elem.Error = json.Unmarshal(resp.Result, elem.Result)
+		elem.Error = json2.Unmarshal(resp.Result, elem.Result)
 	}
 	return err
 }
