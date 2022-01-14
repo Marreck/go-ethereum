@@ -29,7 +29,11 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rpc"
+
+	jsoniter "github.com/json-iterator/go"
 )
+
+var json2 = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // Client defines typed wrappers for the Ethereum RPC API.
 type Client struct {
@@ -111,10 +115,10 @@ func (ec *Client) getBlock(ctx context.Context, method string, args ...interface
 	// Decode header and transactions.
 	var head *types.Header
 	var body rpcBlock
-	if err := json.Unmarshal(raw, &head); err != nil {
+	if err := json2.Unmarshal(raw, &head); err != nil {
 		return nil, err
 	}
-	if err := json.Unmarshal(raw, &body); err != nil {
+	if err := json2.Unmarshal(raw, &body); err != nil {
 		return nil, err
 	}
 	// Quick-verify transaction and uncle lists. This mostly helps with debugging the server.
@@ -198,10 +202,10 @@ type txExtraInfo struct {
 }
 
 func (tx *rpcTransaction) UnmarshalJSON(msg []byte) error {
-	if err := json.Unmarshal(msg, &tx.tx); err != nil {
+	if err := json2.Unmarshal(msg, &tx.tx); err != nil {
 		return err
 	}
-	return json.Unmarshal(msg, &tx.txExtraInfo)
+	return json2.Unmarshal(msg, &tx.txExtraInfo)
 }
 
 // TransactionByHash returns the transaction with the given hash.
